@@ -9,7 +9,13 @@ import numpy as np
 import seaborn as sns
 import os
 
-from model import SimpleCNN # 从 model.py 导入模型
+from model.model import SimpleCNN # 从 model.py 导入模型
+from model.advanced_model import get_advanced_model # 导入高级模型
+
+# --- 模型选择 ---
+# 设置为 True 来加载和测试ResNet18模型
+# 设置为 False 来加载和测试SimpleCNN模型
+USE_ADVANCED_MODEL = True
 
 def plot_confusion_matrix(cm, classes, title='Confusion Matrix', cmap=plt.cm.Blues):
     """
@@ -56,7 +62,9 @@ if __name__ == '__main__':
         DEVICE = "mps"
     else:
         DEVICE = "cpu"
+    model_name = "Advanced_ResNet18" if USE_ADVANCED_MODEL else "SimpleCNN"
     print(f"Using device: {DEVICE}")
+    print(f"Testing model: {model_name}")
 
     # 2. 路径和参数
     data_dir = 'dataset_split'
@@ -79,7 +87,11 @@ if __name__ == '__main__':
     print(f"Found {num_classes} classes: {test_dataset.classes}")
 
     # 5. 加载模型
-    model = SimpleCNN(num_classes=num_classes).to(DEVICE)
+    if USE_ADVANCED_MODEL:
+        model = get_advanced_model(num_classes=num_classes).to(DEVICE)
+    else:
+        model = SimpleCNN(num_classes=num_classes).to(DEVICE)
+
     model.load_state_dict(torch.load(model_path, map_location=DEVICE))
     print("Model loaded from best_model.pth")
 

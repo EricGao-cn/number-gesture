@@ -4,9 +4,15 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
-from model import SimpleCNN
+from model.model import SimpleCNN
+from model.advanced_model import get_advanced_model # 导入高级模型
 import matplotlib.pyplot as plt
 import os
+
+# --- 模型选择 ---
+# 设置为 True 来使用ResNet18迁移学习模型
+# 设置为 False 来使用原始的SimpleCNN模型
+USE_ADVANCED_MODEL = True
 
 # 1. 设置超参数和设备
 LEARNING_RATE = 0.001
@@ -18,7 +24,10 @@ elif torch.backends.mps.is_available():
     DEVICE = "mps"
 else:
     DEVICE = "cpu"
+
+model_name = "Advanced_ResNet18" if USE_ADVANCED_MODEL else "SimpleCNN"
 print(f"Using device: {DEVICE}")
+print(f"Using model: {model_name}")
 
 # 数据集路径
 data_dir = 'dataset_split'
@@ -26,20 +35,35 @@ train_dir = os.path.join(data_dir, 'train')
 valid_dir = os.path.join(data_dir, 'valid')
 
 # 2. 数据预处理和加载
-data_transform = transforms.Compose([
+# 为训练集增加数据增强
+train_transform = transforms.Compose([
+    transforms.Resize((128, 128)),
+    transforms.RandomHorizontalFlip(), # 随机水平翻转
+    transforms.RandomRotation(10),     # 随机旋转-10到10度
+    transforms.ColorJitter(brightness=0.2, contrast=0.2), # 随机调整亮度和对比度
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+# 验证集和测试集不需要数据增强
+valid_transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-train_dataset = ImageFolder(root=train_dir, transform=data_transform)
-valid_dataset = ImageFolder(root=valid_dir, transform=data_transform)
+train_dataset = ImageFolder(root=train_dir, transform=train_transform)
+valid_dataset = ImageFolder(root=valid_dir, transform=valid_transform)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 valid_loader = DataLoader(dataset=valid_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 # 3. 模型、损失函数和优化器
-model = SimpleCNN(num_classes=len(train_dataset.classes)).to(DEVICE)
+if USE_ADVANCED_MODEL:
+    model = get_advanced_model(num_classes=len(train_dataset.classes)).to(DEVICE)
+else:
+    model = SimpleCNN(num_classes=len(train_dataset.classes)).to(DEVICE)
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
@@ -107,8 +131,11 @@ for epoch in range(EPOCHS):
     
     if val_acc > best_val_acc:
         best_val_acc = val_acc
-        torch.save(model.state_dict(), 'best_model.pth')
-        print(f"Saved best model with validation accuracy: {best_val_acc:.4f}")
+        # 根据不同模型保存不同的权重文件
+        model_save_path = f'best_model_{model_name}.pth'
+        torch.save(model.state_dict(), model_save_path)
+        print(f"Saved best model to {model_save_path} with validation accuracy: {best_val_acc:.4f}")
+
 
 print("Training finished.")
 
