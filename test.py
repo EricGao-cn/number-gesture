@@ -9,8 +9,8 @@ import numpy as np
 import seaborn as sns
 import os
 
-from model.model import SimpleCNN # 从 model.py 导入模型
-from model.advanced_model import get_advanced_model # 导入高级模型
+from model.normalCNN import SimpleCNN # 从 model.py 导入模型
+from model.resnet import get_advanced_model # 导入高级模型
 
 # --- 模型选择 ---
 # 设置为 True 来加载和测试ResNet18模型

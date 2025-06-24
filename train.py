@@ -4,8 +4,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
-from model.model import SimpleCNN
-from model.advanced_model import get_advanced_model # 导入高级模型
+from model.normalCNN import SimpleCNN
+from model.resnet import get_advanced_model # 导入高级模型
 import matplotlib.pyplot as plt
 import os
 
