@@ -54,7 +54,7 @@ uv pip install .
 
 ### 使用 Conda 
 
-注意：如果使用 conda 而不使用 uv，执行脚本之前需要对脚本进行修改
+注意：如果使用 conda 而不使用 uv，执行脚本之前需要对脚本进行修改, 将 `uv run` 均改成 `python` 或 `python3`
 
 1.  **创建并激活 Conda 环境**:
     ```bash
