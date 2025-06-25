@@ -21,72 +21,96 @@
 
 ```
 .
-├── best_model.pth      # 训练好的最佳模型权重
-├── data_info.py        # 数据集信息分析与划分脚本
-├── get_data.py         # 从 Kaggle 下载并解压数据集的脚本
-├── model.py            # CNN 模型定义
-├── pyproject.toml      # 项目配置文件，包含依赖项
+├── data/               # 数据处理与原始数据
+│   ├── data_info.py    # 数据分析与划分脚本
+│   ├── get_data.py     # 下载与整理数据
+│   └── dataset/        # 原始图片
+├── dataset_split/      # 按比例划分的训练/验证/测试集
+├── model/              # 模型结构定义
+│   ├── normalCNN.py
+│   └── resnet.py
+├── saved_models/       # 训练好的模型权重（normal/、resnet/）
+├── scripts/            # 一键运行脚本
+├── train.py            # 训练主程序
+├── test.py             # 测试主程序
 ├── README.md           # 项目说明文档
-├── test.py             # 模型测试脚本
-└── train.py            # 模型训练脚本
+└── REPORT.md           # 实验报告
 ```
 
-## 使用说明
+## 环境配置
 
-### 1. 环境配置
-
-本项目使用 `uv` 作为包管理器。你可以通过以下命令安装所有依赖：
+建议使用虚拟环境，安装依赖：
 
 ```bash
 uv pip install -r requirements.txt
 ```
-*注意：你可能需要根据 `pyproject.toml` 文件手动生成 `requirements.txt` 文件，或者直接使用 `uv pip install` 安装 `pyproject.toml` 中列出的依赖。*
-
-### 2. 数据准备
-
-1.  **下载数据**: 运行 `get_data.py` 脚本从 Kaggle 下载手势数字数据集。
-    ```bash
-    python get_data.py
-    ```
-2.  **分析与划分数据**: 运行 `data_info.py` 脚本来分析数据集的基本信息，并将其划分为训练集、验证集和测试集。
-    ```bash
-    python data_info.py
-    ```
-    该脚本会自动创建 `dataset_split` 文件夹，并按 70%/15%/15% 的比例存放训练、验证和测试数据。
-
-### 3. 模型训练
-
-运行 `train.py` 脚本来训练模型。训练过程中，脚本会实时打印每个 epoch 的损失和准确率，并将验证集上表现最好的模型权重保存为 `best_model.pth`。
-
+或直接根据 `pyproject.toml` 安装：
 ```bash
-python train.py
+uv pip install .
 ```
 
-训练完成后，会显示损失和准确率随 epoch 变化的图表。
+## 数据准备
 
-### 4. 模型评估
+1. **下载数据并整理**：
+    ```bash
+    bash scripts/get_data.sh
+    ```
+    数据会被自动整理到 `data/dataset/`，并划分为 `dataset_split/train/`、`valid/`、`test/`。
 
-运行 `test.py` 脚本来评估已保存的最佳模型在测试集上的性能。
+## 训练模型
 
+- 训练普通 CNN：
+    ```bash
+    bash scripts/train_normal_cnn.sh
+    ```
+- 训练 ResNet18 迁移学习模型：
+    ```bash
+    bash scripts/train_resnet.sh
+    ```
+
+可自定义参数，例如：
 ```bash
-python test.py
+python train.py --model-name NormalCNN --epochs 30 --batch-size 32 --learning-rate 0.0005 --early-stop-patience 7
 ```
 
-脚本会输出模型在测试集上的总体准确率，并生成一个可视化的混淆矩阵，以帮助分析模型在每个类别上的具体表现。
+## 测试模型
+
+- 测试普通 CNN：
+    ```bash
+    bash scripts/test_normal_cnn.sh
+    ```
+- 测试 ResNet18：
+    ```bash
+    bash scripts/test_resnet.sh
+    ```
+
+## 主要参数说明
+
+- `--model-name`：选择模型（NormalCNN 或 Advanced_ResNet18）
+- `--epochs`：训练轮数
+- `--batch-size`：批量大小
+- `--learning-rate`：学习率
+- `--early-stop-patience`：early stopping 容忍轮数
+- `--model-save-dir`：模型保存目录
+
+## 结果与可视化
+
+训练结束后会自动保存最优模型权重，并绘制损失与准确率曲线。测试脚本会输出准确率和混淆矩阵。
 
 ## 模型简介
 
-本项目采用了一个简单的卷积神经网络（NormalCNN），其结构如下：
+本项目支持两种模型结构：
 
-1.  **三个卷积层**:
-    *   `conv1`: 16个 3x3 的卷积核
-    *   `conv2`: 32个 3x3 的卷积核
-    *   `conv3`: 64个 3x3 的卷积核
-    每个卷积层后都跟一个 ReLU 激活函数和一个最大池化层（MaxPool2d）。
-2.  **两个全连接层**:
-    *   `fc1`: 512个神经元，后跟一个 ReLU 激活函数和一个 Dropout 层（防止过拟合）。
-    *   `fc2`: 10个神经元（对应 0-9 十个类别），输出最终的分类结果。
+1.  **NormalCNN**（自定义卷积神经网络）
+    *   三个卷积层（conv1/2/3），每层后接 ReLU 和最大池化
+    *   两个全连接层（fc1, fc2），fc1 后有 Dropout
+2.  **Advanced_ResNet18**（迁移学习）
+    *   基于 torchvision 的 ResNet18，最后一层输出数目根据类别自动调整
 
 ## 实验结果
 
-经过训练，模型在测试集上可以达到 **95.33%** 的分类精度，满足实验要求。具体的分类情况可以参考 `test.py` 输出的混淆矩阵。
+经过训练，NormalCNN 在测试集上可达 **95.33%** 分类精度，ResNet18 通常表现更优。具体分类情况可参考 `test.py` 输出的混淆矩阵。
+
+---
+
+如需详细实验过程、超参数对比等，请参见 [REPORT.md](REPORT.md)。
