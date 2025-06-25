@@ -39,8 +39,11 @@
 
 ## 环境配置
 
-建议使用虚拟环境，安装依赖：
+建议使用虚拟环境。
 
+### 使用 uv (推荐)
+
+安装依赖：
 ```bash
 uv pip install -r requirements.txt
 ```
@@ -48,6 +51,20 @@ uv pip install -r requirements.txt
 ```bash
 uv pip install .
 ```
+
+### 使用 Conda 
+
+1.  **创建并激活 Conda 环境**:
+    ```bash
+    conda create -n gesture python=3.12 -y
+    conda activate gesturec
+    ```
+
+2.  **安装依赖**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
 
 ## 数据准备
 
