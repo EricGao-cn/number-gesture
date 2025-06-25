@@ -10,12 +10,12 @@ import seaborn as sns
 import os
 import argparse
 
-from model.normalCNN import SimpleCNN # 从 model.py 导入模型
+from model.normalCNN import NormalCNN # 从 model.py 导入模型
 from model.resnet import get_advanced_model # 导入高级模型
 
 # --- 模型选择 ---
 # 设置为 True 来加载和测试ResNet18模型
-# 设置为 False 来加载和测试SimpleCNN模型
+# 设置为 False 来加载和测试NormalCNN模型
 # USE_ADVANCED_MODEL = True
 
 def plot_confusion_matrix(cm, classes, title='Confusion Matrix', cmap=plt.cm.Blues):
@@ -97,7 +97,7 @@ def main(args):
     if model_name == 'Advanced_ResNet18':
         model = get_advanced_model(num_classes=num_classes).to(DEVICE)
     else:
-        model = SimpleCNN(num_classes=num_classes).to(DEVICE)
+        model = NormalCNN(num_classes=num_classes).to(DEVICE)
 
     model.load_state_dict(torch.load(model_path, map_location=DEVICE))
     print(f"Model loaded from {model_path}")
@@ -111,7 +111,7 @@ def main(args):
 def get_args():
     parser = argparse.ArgumentParser(description='Test a model for number gesture classification.')
     parser.add_argument('--model-name', type=str, default='Advanced_ResNet18',
-                        choices=['SimpleCNN', 'Advanced_ResNet18'],
+                        choices=['NormalCNN', 'Advanced_ResNet18'],
                         help='The model to test.')
     parser.add_argument('--model-path', type=str, default=None,
                         help='Path to the saved model. If not provided, it will be inferred from model-name and model-save-dir.')

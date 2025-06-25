@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
-from model.normalCNN import SimpleCNN
+from model.normalCNN import NormalCNN
 from model.resnet import get_advanced_model # 导入高级模型
 import matplotlib.pyplot as plt
 import os
@@ -59,7 +59,7 @@ def main(args):
     if model_name == 'Advanced_ResNet18':
         model = get_advanced_model(num_classes=len(train_dataset.classes)).to(DEVICE)
     else:
-        model = SimpleCNN(num_classes=len(train_dataset.classes)).to(DEVICE)
+        model = NormalCNN(num_classes=len(train_dataset.classes)).to(DEVICE)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -112,6 +112,8 @@ def main(args):
     train_losses, val_losses = [], []
     train_accs, val_accs = [], []
     best_val_acc = 0.0
+    patience = args.early_stop_patience
+    patience_counter = 0
 
     # 创建保存模型的目录
     model_save_dir = args.model_save_dir
@@ -132,11 +134,17 @@ def main(args):
         
         if val_acc > best_val_acc:
             best_val_acc = val_acc
+            patience_counter = 0
             # 根据不同模型保存不同的权重文件
             model_save_path = os.path.join(model_save_dir, f'best_model_{model_name}.pth')
             torch.save(model.state_dict(), model_save_path)
             print(f"Saved best model to {model_save_path} with validation accuracy: {best_val_acc:.4f}")
-
+        else:
+            patience_counter += 1
+            print(f"No improvement. Early stop patience: {patience_counter}/{patience}")
+            if patience_counter >= patience:
+                print(f"Early stopping triggered at epoch {epoch+1}.")
+                break
 
     print("Training finished.")
 
@@ -163,13 +171,14 @@ def main(args):
 def get_args():
     parser = argparse.ArgumentParser(description='Train a model for number gesture classification.')
     parser.add_argument('--model-name', type=str, default='Advanced_ResNet18',
-                        choices=['SimpleCNN', 'Advanced_ResNet18'],
+                        choices=['NormalCNN', 'Advanced_ResNet18'],
                         help='The model to use for training.')
     parser.add_argument('--learning-rate', type=float, default=0.001, help='Learning rate for the optimizer.')
     parser.add_argument('--batch-size', type=int, default=64, help='Batch size for training.')
     parser.add_argument('--epochs', type=int, default=20, help='Number of epochs to train for.')
     parser.add_argument('--data-dir', type=str, default='dataset_split', help='Directory containing the dataset.')
     parser.add_argument('--model-save-dir', type=str, default='saved_models', help='Directory to save the best model.')
+    parser.add_argument('--early-stop-patience', type=int, default=5, help='Early stopping patience (epochs without improvement).')
     return parser.parse_args()
 
 if __name__ == '__main__':
