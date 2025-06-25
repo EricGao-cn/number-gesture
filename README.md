@@ -54,6 +54,8 @@ uv pip install .
 
 ### 使用 Conda 
 
+注意：如果使用 conda 而不使用 uv，执行脚本之前需要对脚本进行修改
+
 1.  **创建并激活 Conda 环境**:
     ```bash
     conda create -n gesture python=3.12 -y
