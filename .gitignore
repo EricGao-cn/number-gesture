@@ -10,4 +10,6 @@ wheels/
 .venv
 
 data/dataset
+dataset_split
+
 saved_models/
