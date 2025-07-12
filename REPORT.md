@@ -44,15 +44,26 @@
 
 ## 5. 实验结果
 
-- NormalCNN 测试集准确率：95.33%
-- ResNet18 测试集准确率：98.60%
-- 混淆矩阵如下（以 test.py 输出为准）：
+### NormalCNN
+- 测试集准确率：**95.33%**
+- 损失曲线如下：
+  ![NormalCNN Loss](assets/normal_CNN_loss.png)
+- 测试集混淆矩阵如下：
+  ![NormalCNN Test](assets/normal_CNN_test.png)
+
+### Advanced_ResNet18
+- 测试集准确率：**97.12%**
+- 损失曲线如下：
+  ![ResNet18 Loss](assets/resnet_loss.png)
+- 测试集混淆矩阵如下：
+  ![ResNet18 Test](assets/resnet_test.png)
 
 ## 6. 结果分析
 
-- 大部分数字分类准确率高，部分手势（如 2/3、6/9）易混淆。
-- ResNet18 迁移学习模型在小样本下表现更稳健。
-- 数据增强和 early stopping 有效防止过拟合。
+- NormalCNN 能达到较高准确率，但在部分类别上仍有混淆。
+- Advanced_ResNet18 迁移学习模型整体表现更优，准确率更高，混淆更少。
+- 两种模型的损失曲线均显示训练过程收敛良好。
+- 混淆矩阵可视化有助于分析模型在各类别上的具体表现。
 
 ## 7. 结论与展望
 
