@@ -129,7 +129,21 @@ python train.py --model-name NormalCNN --epochs 30 --batch-size 32 --learning-ra
 
 ## 实验结果
 
-经过训练，NormalCNN 在测试集上可达 **95.33%** 分类精度，ResNet18 通常表现更优。具体分类情况可参考 `test.py` 输出的混淆矩阵。
+### NormalCNN
+
+- 测试集准确率：**95.33%**
+- 损失曲线如下：
+  ![NormalCNN Loss](assets/normal_CNN_loss.png)
+- 测试集混淆矩阵如下：
+  ![NormalCNN Test](assets/normal_CNN_test.png)
+
+### Advanced_ResNet18
+
+- 测试集准确率：**97.12%**
+- 损失曲线如下：
+  ![ResNet18 Loss](assets/resnet_loss.png)
+- 测试集混淆矩阵如下：
+  ![ResNet18 Test](assets/resnet_test.png)
 
 ---
 
