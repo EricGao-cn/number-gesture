@@ -99,6 +99,7 @@ python train.py --model-name NormalCNN --epochs 30 --batch-size 32 --learning-ra
     ```bash
     bash scripts/test_normal_cnn.sh
     ```
+    
 - 测试 ResNet18：
     ```bash
     bash scripts/test_resnet.sh
