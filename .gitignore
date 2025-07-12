@@ -16,3 +16,5 @@ dataset_split
 *.zip
 
 saved_models/
+
+*.mov
